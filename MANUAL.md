@@ -8,6 +8,8 @@ Este documento descreve como configurar, instalar e operar o sistema de controle
 - **Profilômetro**: Conectado via Serial/USB.
 - **Cartão SD**: Com Raspberry Pi OS (Bullseye ou Bookworm) instalado.
 
+> **Diagrama de Conexão**: Consulte [HARDWARE_DIAGRAM.md](./HARDWARE_DIAGRAM.md) para um diagrama visual detalhado das conexões.
+
 ## 2. Preparação do Raspberry Pi
 
 ### 2.1. Atualizar o Sistema
@@ -24,6 +26,12 @@ Se estiver usando um Hat RS485 conectado aos pinos GPIO (UART):
 3. **Login Shell over Serial?** -> **Não**.
 4. **Serial Port Hardware enabled?** -> **Sim**.
 5. Reinicie o Raspberry Pi: `sudo reboot`.
+6. **(Avançado) Controle de Fluxo RTS**: Se estiver usando um módulo MAX485 manual e driver Modbus que exija hardware flow control (ou uso do `rpi-gpio` RTS), edite `/boot/config.txt` e adicione:
+   ```ini
+   enable_uart=1
+   dtoverlay=uart-ctsrts,rts-gpio=18
+   ```
+   *Isso define o GPIO 18 como pino de controle de direção (RTS) automático pelo driver serial do Kernel.*
 
 ### 2.3. Permissões de Acesso
 Adicione o usuário atual ao grupo `dialout` para acessar as portas USB/Serial sem `sudo`:
