@@ -1,0 +1,4 @@
+django>=4.2,<5.0
+pymodbus>=3.0.0
+pyserial>=3.5
+numpy>=1.21.0
