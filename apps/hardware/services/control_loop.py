@@ -1,20 +1,19 @@
 import time
 import logging
 from apps.hardware.models import ControlSettings, ActuatorConfig, ProfileConfig
-from .mighty_zap import MightyZapDriver
+from .mighty_zap import get_driver
 from .profilometer import ProfilometerDriver
 
 logger = logging.getLogger(__name__)
 
 class ControlLoop:
     def __init__(self):
-        self.actuator_driver = MightyZapDriver()
+        self.actuator_driver = get_driver()  # Usa instância singleton
         self.profilometer_driver = ProfilometerDriver()
         self.running = False
 
     def start(self):
         logger.info("Starting Control Loop...")
-        self.actuator_driver.connect()
         self.running = True
         self.loop()
 

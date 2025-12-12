@@ -1,11 +1,13 @@
 from django.views.generic import TemplateView, View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from django.http import JsonResponse
 import json
 import logging
 
 from apps.hardware.models import ActuatorConfig, ProfileConfig, ControlSettings
-from apps.hardware.services.mighty_zap import MightyZapDriver
+from apps.hardware.services.mighty_zap import get_driver
 
 logger = logging.getLogger(__name__)
 
@@ -35,25 +37,22 @@ class TestActuatorsView(TemplateView):
         context['actuators'] = ActuatorConfig.objects.all()
         return context
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ActuatorCommandView(View):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
             actuator_id = data.get('actuator_id')
             position = data.get('position')
-            
+
             if actuator_id is None or position is None:
                 return JsonResponse({'status': 'error', 'message': 'Missing parameters'}, status=400)
-                
-            driver = MightyZapDriver()
-            if driver.connect():
-                # Note: connect() currently returns True always or logs success as per previous file view
-                # Ideally we check if real connection worked, but for now we follow existing pattern
-                driver.set_position(int(actuator_id), int(position))
-                return JsonResponse({'status': 'success', 'message': f'Moved ID {actuator_id} to {position}'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Failed to connect to driver'}, status=500)
-                
+
+            # Usa instância singleton do driver (conecta automaticamente)
+            driver = get_driver()
+            driver.set_position(int(actuator_id), int(position))
+            return JsonResponse({'status': 'success', 'message': f'Movendo atuador {actuator_id} para posição {position}'})
+
         except Exception as e:
             logger.error(f"API Error: {e}")
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
