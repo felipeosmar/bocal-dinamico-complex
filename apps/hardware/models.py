@@ -23,6 +23,10 @@ class ProfileConfig(models.Model):
     
     target_value = models.FloatField(help_text="Target profile reading value", default=0.0)
     tolerance = models.FloatField(help_text="Acceptable deviation (+/-)", default=0.5)
+    
+    # Simulation
+    is_simulated = models.BooleanField(default=False, help_text="Use simulated value instead of partial sensor reading")
+    simulated_value = models.FloatField(default=10.0, help_text="Value to use when in simulation mode")
 
     def __str__(self):
         return self.name

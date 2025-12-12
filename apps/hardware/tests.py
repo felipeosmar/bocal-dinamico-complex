@@ -19,3 +19,20 @@ class HardwareModelTests(TestCase):
         self.assertTrue(ControlSettings.objects.exists())
         self.assertTrue(ProfileConfig.objects.exists())
         self.assertEqual(ActuatorConfig.objects.count(), 3)
+
+    def test_driver_simulation(self):
+        from apps.hardware.services.profilometer import ProfilometerDriver
+        
+        # Create config
+        config = ProfileConfig.objects.create(is_simulated=True, simulated_value=12.34)
+        driver = ProfilometerDriver()
+        
+        val = driver.read_value()
+        self.assertEqual(val, 12.34)
+        
+        config.is_simulated = False
+        config.save()
+        
+        # Should be random now (likely not 12.34 exactly)
+        val = driver.read_value()
+        self.assertNotEqual(val, 12.34)

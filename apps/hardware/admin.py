@@ -8,8 +8,8 @@ class ActuatorConfigAdmin(admin.ModelAdmin):
 
 @admin.register(ProfileConfig)
 class ProfileConfigAdmin(admin.ModelAdmin):
-    list_display = ('name', 'target_value', 'tolerance')
-    list_editable = ('target_value', 'tolerance')
+    list_display = ('name', 'target_value', 'tolerance', 'is_simulated', 'simulated_value')
+    list_editable = ('target_value', 'tolerance', 'is_simulated', 'simulated_value')
 
 @admin.register(ControlSettings)
 class ControlSettingsAdmin(admin.ModelAdmin):

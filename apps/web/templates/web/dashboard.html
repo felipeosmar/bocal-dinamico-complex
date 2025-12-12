@@ -59,6 +59,37 @@
                     </div>
                 </div>
             </div>
+            <!-- Simulation Control -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">Simulation Control</div>
+                    <div class="card-body">
+                        {% if profile_config %}
+                        <form action="{% url 'update_simulation' %}" method="post" id="toggleForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="toggle_update" value="1">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault"
+                                    name="is_simulated" {% if profile_config.is_simulated %}checked{% endif %}
+                                    onchange="this.form.submit()">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Enable Simulation</label>
+                            </div>
+                        </form>
+
+                        <form action="{% url 'update_simulation' %}" method="post" id="sliderForm">
+                            {% csrf_token %}
+                            <label for="customRange1" class="form-label">Simulated Value: <span id="valDisplay">{{
+                                    profile_config.simulated_value }}</span></label>
+                            <input type="range" class="form-range" id="customRange1" name="simulated_value" min="0"
+                                max="20" step="0.1" value="{{ profile_config.simulated_value }}"
+                                onchange="this.form.submit()">
+                        </form>
+                        {% else %}
+                        <p class="text-warning">No Profile Config Found</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Actuators -->
