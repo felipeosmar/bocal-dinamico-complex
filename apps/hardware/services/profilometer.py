@@ -13,16 +13,7 @@ class ProfilometerDriver:
         Reads the current value from the profilometer.
         Returns a float.
         """
-        try:
-            config = ProfileConfig.objects.first()
-            if config and config.is_simulated:
-                val = config.simulated_value
-                logger.debug(f"[SIMULATION] Profilometer read (Manual): {val:.2f}")
-                return val
-        except Exception:
-            pass # Fallback to random simulation if DB fails/not found
-
-        # Default random simulation (or real driver code in future)
-        val = random.gauss(10.0, 0.5)
-        logger.debug(f"[SIMULATION] Profilometer read (Random): {val:.2f}")
-        return val
+        # TODO: Implement real driver logic here (Serial read)
+        # For now, we return 0.0 or a fixed value as the "real" driver is not connected
+        logger.warning("Real Profilometer driver not implemented - returning 0.0")
+        return 0.0

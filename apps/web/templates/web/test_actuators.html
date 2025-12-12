@@ -1,0 +1,88 @@
+{% extends 'web/base.html' %}
+
+{% block title %}Actuator Test - Actuator Control{% endblock %}
+
+{% blockcontent %}
+<h2>Actuator Connectivity Test</h2>
+<p class="lead">Use this page to verify Modbus communication and mechanical range.</p>
+
+<div class="row">
+    {% for actuator in actuators %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-secondary text-white">
+                {{ actuator.name }} (ID: {{ actuator.modbus_id }})
+            </div>
+            <div class="card-body">
+                <p><strong>Configured Range:</strong> {{ actuator.min_position }} - {{ actuator.max_position }}</p>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary"
+                        onclick="runTest({{ actuator.modbus_id }}, {{ actuator.min_position }}, {{ actuator.max_position }})"
+                        id="btn-{{ actuator.modbus_id }}">
+                        Run Min-Max Test
+                    </button>
+                    <div id="status-{{ actuator.modbus_id }}" class="small text-muted mt-2">Ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-warning">No actuators configured in the system.</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    async function setPosition(id, position) {
+        const response = await fetch('{% url "set_actuator_position" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                actuator_id: id,
+                position: position
+            })
+        });
+        return await response.json();
+    }
+
+    async function runTest(id, min, max) {
+        const btn = document.getElementById(`btn-${id}`);
+        const status = document.getElementById(`status-${id}`);
+
+        btn.disabled = true;
+
+        try {
+            status.textContent = 'Moving to MIN...';
+            status.className = 'small text-warning mt-2';
+            await setPosition(id, min);
+
+            await new Promise(r => setTimeout(r, 2000)); // Wait 2s for movement
+
+            status.textContent = 'Moving to MAX...';
+            await setPosition(id, max);
+
+            await new Promise(r => setTimeout(r, 2000)); // Wait 2s for movement
+
+            status.textContent = 'Returning to MIN...';
+            await setPosition(id, min);
+
+            status.textContent = 'Test Complete! OK.';
+            status.className = 'small text-success mt-2 fw-bold';
+
+        } catch (error) {
+            console.error(error);
+            status.textContent = 'Error: ' + error.message;
+            status.className = 'small text-danger mt-2';
+        } finally {
+            btn.disabled = false;
+        }
+    }
+</script>
+{% endblock %}
